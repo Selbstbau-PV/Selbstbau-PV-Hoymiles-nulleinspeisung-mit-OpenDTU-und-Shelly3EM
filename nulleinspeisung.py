@@ -13,29 +13,37 @@ shellyIP = '192.100.100.30' #IP Adresse von Shelly 3EM
 
 
 while True:
-    # Nimmt Daten von der openDTU Rest-API und übersetzt sie in ein json-Format
-    r = requests.get(url = f'http://{dtuIP}/api/livedata/status/inverters' ).json()
+    try:
+        # Nimmt Daten von der openDTU Rest-API und übersetzt sie in ein json-Format
+        r = requests.get(url = f'http://{dtuIP}/api/livedata/status/inverters' ).json()
 
-    # Selektiert spezifische Daten aus der json response
-    reachable   = r['inverters'][0]['reachable'] # ist DTU erreichbar ?
-    producing   = int(r['inverters'][0]['producing']) # produziert der Wechselrichter etwas ?
-    altes_limit = int(r['inverters'][0]['limit_absolute']) # wo war das alte Limit gesetzt
-    power_dc    = r['inverters'][0]['AC']['0']['Power DC']['v']  # Lieferung DC vom Panel
-    power       = r['inverters'][0]['AC']['0']['Power']['v'] # Abgabe BKW AC in Watt
+        # Selektiert spezifische Daten aus der json response
+        reachable   = r['inverters'][0]['reachable'] # ist DTU erreichbar ?
+        producing   = int(r['inverters'][0]['producing']) # produziert der Wechselrichter etwas ?
+        altes_limit = int(r['inverters'][0]['limit_absolute']) # wo war das alte Limit gesetzt
+        power_dc    = r['inverters'][0]['AC']['0']['Power DC']['v']  # Lieferung DC vom Panel
+        power       = r['inverters'][0]['AC']['0']['Power']['v'] # Abgabe BKW AC in Watt
 
-    # Nimmt Daten von der Shelly 3EM Rest-API und übersetzt sie in ein json-Format
-    phaseA      = requests.get(f'http://{shellyIP}/emeter/0', headers={"Content-Type": "application/json"}).json()['power']
-    phaseB      = requests.get(f'http://{shellyIP}/emeter/1', headers={"Content-Type": "application/json"}).json()['power']
-    phaseC      = requests.get(f'http://{shellyIP}/emeter/2', headers={"Content-Type": "application/json"}).json()['power']
-    grid_sum    = phaseA + phaseB + phaseC # Aktueller Bezug im Chalet - rechnet alle Phasen zusammen
-    setpoint    = 0     # Neues Limit in Watt
+        # Nimmt Daten von der Shelly 3EM Rest-API und übersetzt sie in ein json-Format
+        phaseA      = requests.get(f'http://{shellyIP}/emeter/0', headers={"Content-Type": "application/json"}).json()['power']
+        phaseB      = requests.get(f'http://{shellyIP}/emeter/1', headers={"Content-Type": "application/json"}).json()['power']
+        phaseC      = requests.get(f'http://{shellyIP}/emeter/2', headers={"Content-Type": "application/json"}).json()['power']
+        grid_sum    = phaseA + phaseB + phaseC # Aktueller Bezug im Chalet - rechnet alle Phasen zusammen
+        setpoint    = 0     # Neues Limit in Watt
+    except:
+        print("Ein Fehler ist bei der Datenverarbeitung aufgetreten")
+        print("Vorhergehenden Werte werden verwendet")
+        print("Reseting.....")
 
     # Setzt ein limit auf das Wechselrichter
     def setLimit(Serial, Limit):
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         payload = f'''data={{"serial":"{Serial}", "limit_type":0, "limit_value":{Limit}}}'''
-        newLimit = requests.post(url=f'http://{dtuIP}/api/limit/config', data=payload, auth=HTTPBasicAuth(dtuNutzer, dtuPasswort), headers=headers)
-        print('Konfiguration Stauts:', newLimit.json()['type'])
+        try:
+            newLimit = requests.post(url=f'http://{dtuIP}/api/limit/config', data=payload, auth=HTTPBasicAuth(dtuNutzer, dtuPasswort), headers=headers)
+            print('Konfiguration Stauts:', newLimit.json()['type'])
+        except:
+            print("Konfiguration's fehler ... Konfiguration konnte nicht gesendet werden")
 
     # Werte setzen
     print("aktueller Bezug - Haus:   ",grid_sum)
