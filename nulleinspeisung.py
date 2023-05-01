@@ -1,4 +1,5 @@
-import requests, time
+#!/usr/bin/env python3
+import requests, time, sys
 from requests.auth import HTTPBasicAuth
 
 
@@ -66,4 +67,5 @@ while True:
             except:
                 print('Fehler beim Senden der Konfiguration')
 
+    sys.stdout.flush() # write out cached messages to stdout
     time.sleep(5) # wait
