@@ -1,3 +1,6 @@
+# Achtung bei OpenDTU gab es eine API Anderung
+# Dieses Skript ist nur kompatibel bis einschließlich Version V24.1.26 
+
 # Nulleinspeisung Hoymiles HM-1500 mit OpenDTU & Python Steuerung
 
 Dies ist ein Python-Skript, das den aktuellen Hausverbrauch aus einem Shelly 3EM ausliest, die Nulleinspeisung berechnet und die Ausgangsleistung eines Hoymiles-Wechselrichters mit Hilfe der OpenDTU entsprechend anpasst. Somit wird kein unnötiger Strom ins Betreibernetz abgegeben.
