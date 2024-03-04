@@ -1,4 +1,4 @@
-# Achtung! bei OpenDTU gab es eine API Anderung
+# Achtung! bei OpenDTU gab es eine API Anpassung
 
 Dieses Skript ist nur kompatibel bis einschließlich Version V24.1.26 
 
